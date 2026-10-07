@@ -1,4 +1,4 @@
-import { Star, ThumbsUp, ShieldAlert, Clock } from 'lucide-react';
+import { ThumbsUp, Clock } from 'lucide-react';
 
 export default function ReviewsDashboardPage() {
   const reviews = [

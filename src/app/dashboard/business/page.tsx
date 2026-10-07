@@ -18,7 +18,7 @@ export default function MyBusinessProfilePage() {
     },
   });
 
-  const onSubmit = (_data: unknown) => {
+  const onSubmit = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);

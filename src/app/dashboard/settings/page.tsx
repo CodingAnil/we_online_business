@@ -8,7 +8,7 @@ export default function SettingsDashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const { register, handleSubmit } = useForm();
 
-  const onSubmit = (_data: unknown) => {
+  const onSubmit = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);

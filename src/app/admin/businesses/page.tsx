@@ -1,5 +1,3 @@
-import { MapPin, Star, ShieldCheck, ShieldAlert } from 'lucide-react';
-
 export default function AdminBusinessesPage() {
   const businesses = [
     {

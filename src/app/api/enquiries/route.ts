@@ -7,7 +7,7 @@ import { ApiResponse } from '@/lib/helpers/api.helper';
 import { auth } from '@/lib/auth';
 
 // GET: Retrieve enquiries (Protected)
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     await dbConnect();
     const session = await auth();

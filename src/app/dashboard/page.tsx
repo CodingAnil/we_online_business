@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { dbConnect } from '@/lib/mongodb';
+
+export const dynamic = 'force-dynamic';
 import Business, { IBusinessDocument } from '@/models/Business';
 import Enquiry from '@/models/Enquiry';
 import { Types } from 'mongoose';

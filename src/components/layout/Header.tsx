@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Search, Menu, X, User, LogOut, LayoutDashboard, PlusCircle } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Header() {

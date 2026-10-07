@@ -1,4 +1,4 @@
-import { Building2, Tags, MapPin, Users, Mail, CheckSquare } from 'lucide-react';
+import { Building2, Tags, MapPin, Users, CheckSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboardIndexPage() {
