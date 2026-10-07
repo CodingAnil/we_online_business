@@ -1,0 +1,24 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Response interceptor to format errors nicely
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.message || 'Something went wrong';
+    const errors = error.response?.data?.errors || null;
+    return Promise.reject({
+      message,
+      errors,
+      status: error.response?.status,
+    });
+  }
+);
+
+export default api;
