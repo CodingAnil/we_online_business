@@ -17,65 +17,73 @@ interface PageProps {
 export const revalidate = 0; // Disable server-side caching to support search querying
 
 export default async function SearchPage({ searchParams }: PageProps) {
-  await dbConnect();
   const { q = '', location = '', category = '' } = await searchParams;
 
-  // 1. Build Query Object
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const queryObj: any = { status: 'approved' };
-  
-  if (q) {
-    queryObj.$or = [
-      { name: { $regex: q, $options: 'i' } },
-      { description: { $regex: q, $options: 'i' } },
-    ];
-  }
-
+  let businesses: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let allCategories: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let allCities: any[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let selectedCategory: any = null;
-  if (category) {
-    selectedCategory = await Category.findOne({ slug: category });
-    if (selectedCategory) {
-      queryObj.categoryId = selectedCategory._id;
-    }
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let selectedCity: any = null;
-  if (location) {
-    selectedCity = await City.findOne({ name: { $regex: location, $options: 'i' } });
-    if (selectedCity) {
-      queryObj.cityId = selectedCity._id;
-    } else {
-      // Fallback: search address for locality
-      queryObj.address = { $regex: location, $options: 'i' };
+
+  try {
+    await dbConnect();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const queryObj: any = { status: 'approved' };
+
+    if (q) {
+      queryObj.$or = [
+        { name: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+      ];
     }
+
+    if (category) {
+      selectedCategory = await Category.findOne({ slug: category }).lean();
+      if (selectedCategory) {
+        queryObj.categoryId = selectedCategory._id;
+      }
+    }
+
+    if (location) {
+      selectedCity = await City.findOne({ name: { $regex: location, $options: 'i' } }).lean();
+      if (selectedCity) {
+        queryObj.cityId = selectedCity._id;
+      } else {
+        queryObj.address = { $regex: location, $options: 'i' };
+      }
+    }
+
+    const rawBusinesses = await Business.find(queryObj)
+      .populate('categoryId', 'name slug')
+      .populate('cityId', 'name slug')
+      .lean();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    businesses = rawBusinesses.map((biz: any) => ({
+      id: biz._id.toString(),
+      name: biz.name,
+      slug: biz.slug,
+      category: biz.categoryId?.name || 'General',
+      city: biz.cityId?.name || 'Local',
+      address: biz.address,
+      phone: biz.phone,
+      website: biz.website || '',
+      rating: biz.rating || 0,
+      reviews: biz.totalReviews || 0,
+      image: biz.logo || biz.coverImage || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80',
+    }));
+
+    allCategories = await Category.find({ status: 'active' }).limit(10).lean();
+    allCities = await City.find({ status: 'active' }).limit(10).lean();
+  } catch (error) {
+    console.error('Failed to load search results', error);
   }
-
-  // 2. Fetch Businesses
-  const rawBusinesses = await Business.find(queryObj)
-    .populate('categoryId', 'name slug')
-    .populate('cityId', 'name slug')
-    .exec();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const businesses = rawBusinesses.map((biz: any) => ({
-    id: biz._id.toString(),
-    name: biz.name,
-    slug: biz.slug,
-    category: biz.categoryId?.name || 'General',
-    city: biz.cityId?.name || 'Local',
-    address: biz.address,
-    phone: biz.phone,
-    website: biz.website || '',
-    rating: biz.rating || 0,
-    reviews: biz.totalReviews || 0,
-    image: biz.logo || biz.coverImage || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80',
-  }));
-
-  // 3. Fetch categories and cities for Sidebar Filters
-  const allCategories = await Category.find({ status: 'active' }).limit(10);
-  const allCities = await City.find({ status: 'active' }).limit(10);
 
   // 4. Generate local locality/area chips based on selected city (simulate neighborhood zones)
   const areas = selectedCity

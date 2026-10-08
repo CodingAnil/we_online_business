@@ -11,8 +11,21 @@ interface PageProps {
 export const revalidate = 0;
 
 export default async function BusinessDetailPage({ params }: PageProps) {
-  await dbConnect();
   const { slug } = await params;
+
+  try {
+    await dbConnect();
+  } catch (error) {
+    console.error('Failed to load business', error);
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold text-gray-905 dark:text-white">Listings are temporarily unavailable</h1>
+        <Link href="/" className="mt-6 inline-block text-indigo-500 font-bold hover:underline">
+          Return Home
+        </Link>
+      </div>
+    );
+  }
 
   // Fetch business from DB
   const businessDoc = await Business.findOne({ slug })

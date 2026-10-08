@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth.config';
 
 export default auth((req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+  const isLoggedIn = !!req.auth?.user;
   const userRole = req.auth?.user?.role;
 
   const isAdminRoute = nextUrl.pathname.startsWith('/admin');

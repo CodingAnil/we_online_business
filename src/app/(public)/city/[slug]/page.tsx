@@ -12,8 +12,21 @@ interface PageProps {
 export const revalidate = 0;
 
 export default async function CityDetailPage({ params }: PageProps) {
-  await dbConnect();
   const { slug } = await params;
+
+  try {
+    await dbConnect();
+  } catch (error) {
+    console.error('Failed to load city', error);
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold text-gray-905">Listings are temporarily unavailable</h1>
+        <Link href="/" className="mt-4 inline-block text-indigo-500 font-bold hover:underline">
+          Return Home
+        </Link>
+      </div>
+    );
+  }
 
   // Find city first
   const cityDoc = await City.findOne({ slug });

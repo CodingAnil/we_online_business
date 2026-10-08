@@ -27,12 +27,13 @@ interface PopulatedEnquiry {
 }
 
 export default async function DashboardIndexPage() {
-  await dbConnect();
   const session = await auth();
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     redirect('/login');
   }
+
+  await dbConnect();
 
   const { id: userId, role } = session.user;
 

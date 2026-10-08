@@ -9,15 +9,25 @@ import HomeSearchBox from '@/components/search/HomeSearchBox';
 export const revalidate = 0; // Disable server caching to ensure it is always up to date
 
 export default async function HomePage() {
-  await dbConnect();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let categories: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let cities: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let dbFeatured: any[] = [];
 
-  // Fetch real categories, cities, and businesses from DB
-  const categories = await Category.find({ status: 'active' }).limit(12);
-  const cities = await City.find({ status: 'active' }).limit(8);
-  const dbFeatured = await Business.find({ status: 'approved' })
-    .populate('categoryId', 'name slug')
-    .populate('cityId', 'name slug')
-    .limit(6);
+  try {
+    await dbConnect();
+    categories = await Category.find({ status: 'active' }).limit(12).lean();
+    cities = await City.find({ status: 'active' }).limit(8).lean();
+    dbFeatured = await Business.find({ status: 'approved' })
+      .populate('categoryId', 'name slug')
+      .populate('cityId', 'name slug')
+      .limit(6)
+      .lean();
+  } catch (error) {
+    console.error('Failed to load homepage listings', error);
+  }
 
   // Map to UI friendly formats
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
